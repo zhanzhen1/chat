@@ -22,6 +22,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 	ws[c] = struct{}{}
+	//接收到消息
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
@@ -29,6 +30,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		log.Printf("recv: %s", message)
+		//循环拿到coon
 		for conn := range ws {
 			err = conn.WriteMessage(mt, message)
 			if err != nil {
@@ -38,15 +40,19 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// http搭建的
 func TestWebSocket(t *testing.T) {
 	http.HandleFunc("/echo", echo)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
+
+// gin搭建的websocket
 func TestGinWebsocketServer(t *testing.T) {
 	r := gin.Default()
 	// 路由
 	r.GET("/echo", func(ctx *gin.Context) {
 		echo(ctx.Writer, ctx.Request)
 	})
-	r.Run(":8080")
+	r.Run(":8081")
 }

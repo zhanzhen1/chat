@@ -16,3 +16,10 @@ func Login(username string, password string) (*model.User, error) {
 	}
 	return user, err
 }
+func GetUserBasicById(id uint) (*model.User, error) {
+	err := utils.DB.Where("id = ?", id).Find(&user).Error
+	if err != nil {
+		log.Println("GetUserBasicById()...", err)
+	}
+	return user, err
+}

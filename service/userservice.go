@@ -2,7 +2,10 @@ package service
 
 import (
 	"chat/dao"
+	"chat/helper"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -22,14 +25,7 @@ func Login() (handlerFunc gin.HandlerFunc) {
 	return func(context *gin.Context) {
 		username := context.PostForm("username")
 		password := context.PostForm("password")
-		if username == "" || password == "" {
-			context.JSON(http.StatusOK, gin.H{
-				"code": -1,
-				"msg":  "用户名或密码不能为空",
-			})
-			return
-		}
-		_, err := dao.Login(username, password)
+		ub, err := dao.Login(username, password)
 		if err != nil {
 			context.JSON(http.StatusOK, gin.H{
 				"code": -1,
@@ -37,9 +33,43 @@ func Login() (handlerFunc gin.HandlerFunc) {
 			})
 			return
 		}
+		token, err := helper.GenerateToken(ub.Id, ub.Email)
+		if err != nil {
+			context.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  "系统错误" + err.Error(),
+			})
+			return
+		}
 		context.JSON(http.StatusOK, gin.H{
 			"code": 1,
-			"msg":  "success",
+			"msg":  "登录成功",
+			"data": gin.H{
+				"token": token,
+			},
 		})
+	}
+}
+
+func UserDetail() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		u, _ := context.Get("user_claims")
+		uc := u.(*helper.UserClaims)
+		fmt.Println("id:", uc.Identity)
+		userBasic, err := dao.GetUserBasicById(uc.Identity)
+		if err != nil {
+			log.Panicf("[DB ERROR]:%v\n ", err)
+			context.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  "数据查询异常",
+			})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"msg":  "查询成功",
+			"data": userBasic,
+		})
+
 	}
 }
