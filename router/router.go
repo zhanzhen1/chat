@@ -14,6 +14,8 @@ func Router() *gin.Engine {
 	//用户详情
 	auth.GET("/user/detail", service.UserDetail())
 	//发送消息，接收
-	auth.GET("/websocket/message", service.WebsocketMessage)
+	auth.GET("/websocket/message", service.WebsocketMessage())
+	//聊天记录列表
+	auth.GET("/chat/list", service.ChatList)
 	return ginServer
 }

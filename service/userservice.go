@@ -25,29 +25,37 @@ func Login() (handlerFunc gin.HandlerFunc) {
 	return func(context *gin.Context) {
 		username := context.PostForm("username")
 		password := context.PostForm("password")
-		ub, err := dao.Login(username, password)
-		if err != nil {
+		if username == "" || password == "" {
+			context.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  "用户名或密码不能为nil",
+			})
+			return
+		}
+		ub, _ := dao.Login(username, password)
+		if ub.Id != 0 {
+			token, err := helper.GenerateToken(ub.Id, ub.Email)
+			if err != nil {
+				context.JSON(http.StatusOK, gin.H{
+					"code": -1,
+					"msg":  "系统错误" + err.Error(),
+				})
+				return
+			}
+			context.JSON(http.StatusOK, gin.H{
+				"code": 1,
+				"msg":  "登录成功",
+				"data": gin.H{
+					"token": token,
+				},
+			})
+		} else {
 			context.JSON(http.StatusOK, gin.H{
 				"code": -1,
 				"msg":  "用户名或密码错误",
 			})
-			return
 		}
-		token, err := helper.GenerateToken(ub.Id, ub.Email)
-		if err != nil {
-			context.JSON(http.StatusOK, gin.H{
-				"code": -1,
-				"msg":  "系统错误" + err.Error(),
-			})
-			return
-		}
-		context.JSON(http.StatusOK, gin.H{
-			"code": 1,
-			"msg":  "登录成功",
-			"data": gin.H{
-				"token": token,
-			},
-		})
+
 	}
 }
 

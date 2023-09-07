@@ -29,6 +29,7 @@ func GenerateToken(identity uint, email string) (string, error) {
 		Email:            email,
 		RegisteredClaims: jwt.RegisteredClaims{},
 	}
+	fmt.Println("Identity", identity)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim)
 	tokenString, err := token.SignedString(myKey)
 	if err != nil {

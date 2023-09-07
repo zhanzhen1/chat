@@ -6,5 +6,5 @@ var MailPassword = os.Getenv("MailPassword")
 
 type MessageStruct struct {
 	Message string `json:"message"`
-	RoomId  string `json:"roomId"`
+	RoomId  uint   `json:"room_id"`
 }
