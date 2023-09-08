@@ -81,3 +81,51 @@ func UserDetail() gin.HandlerFunc {
 
 	}
 }
+
+func UserInfo(context *gin.Context) {
+	username := context.Query("username")
+	if username == "" {
+		context.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "用户不存在",
+		})
+		return
+	}
+	userInfo, err := dao.GetUserByUserName(username)
+	if err != nil {
+		context.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "数据查询异常",
+		})
+		return
+	}
+	if username != userInfo.Username {
+		context.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "用户名异常",
+		})
+		return
+	}
+	uc := context.MustGet("user_claims").(*helper.UserClaims)
+	data := &UserInfoResult{
+		Username: userInfo.Username,
+		Sex:      userInfo.Sex,
+		Email:    userInfo.Email,
+		IsFriend: false,
+	}
+	if dao.GetUserIsFriend(userInfo.Id, uc.Identity) {
+		data.IsFriend = true
+	}
+	context.JSON(http.StatusOK, gin.H{
+		"code": 1,
+		"msg":  "数据加载成功",
+		"data": data,
+	})
+}
+
+type UserInfoResult struct {
+	Username string `gorm:"comment:'用户名'" json:"username"`
+	Sex      int    `gorm:"comment:'性别'" json:"sex"`
+	Email    string `gorm:"comment:'邮箱'" json:"email"`
+	IsFriend bool   `gorm:"comment:'是否是好友'" json:"IsFriend"` // true 是好友 false 不是
+}

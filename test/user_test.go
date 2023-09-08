@@ -14,3 +14,13 @@ func TestUserLogin(t *testing.T) {
 	}
 	fmt.Println("user:", user)
 }
+
+func TestUserInfo(t *testing.T) {
+	userInfo, err := dao.GetUserByUserName("zz")
+	if err != nil {
+		fmt.Println("GetUserByUserName()...", err)
+		return
+	}
+	fmt.Println("user:", userInfo)
+
+}

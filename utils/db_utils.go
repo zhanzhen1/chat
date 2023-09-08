@@ -34,6 +34,7 @@ func init() {
 		panic("连接数据库失败,err" + err.Error())
 
 	}
+
 	//连接成功
 	DB = db
 	DB = db.Session(&gorm.Session{
