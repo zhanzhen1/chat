@@ -22,5 +22,9 @@ func Router() *gin.Engine {
 	auth.GET("/websocket/message", service.WebsocketMessage())
 	//聊天记录列表
 	auth.GET("/chat/list", service.ChatList)
+	//添加好友
+	auth.POST("/user/add", service.UserAdd)
+	//删除好友
+	auth.DELETE("/user/delete", service.UserDelete)
 	return ginServer
 }

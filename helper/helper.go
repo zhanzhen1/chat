@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 type UserClaims struct {
@@ -52,4 +53,12 @@ func AnalyseToken(tokenString string) (*UserClaims, error) {
 		return nil, fmt.Errorf("analyse Token Error:%v", err)
 	}
 	return userClaim, nil
+}
+
+// GetUUID
+// 生成唯一码
+func GetUUID() string {
+	uuid := uuid.New()
+	key := uuid.String()
+	return fmt.Sprintf("%x", key)
 }
