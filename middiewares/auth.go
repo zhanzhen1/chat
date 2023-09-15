@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// 是否通过token
 func AuthCheck() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		token := context.GetHeader("token")

@@ -9,7 +9,7 @@ import (
 func Router() *gin.Engine {
 	ginServer := gin.Default()
 	//注册
-
+	ginServer.POST("/register", service.Register())
 	//登录
 	ginServer.POST("/login", service.Login())
 	//是否通过认证

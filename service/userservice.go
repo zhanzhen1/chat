@@ -18,7 +18,37 @@ func GetIndex(ctx *gin.Context) {
 // 用户注册
 func Register() (handlerFunc gin.HandlerFunc) {
 	return func(context *gin.Context) {
-
+		username := context.PostForm("username")
+		password := context.PostForm("password")
+		sex := context.PostForm("sex")
+		email := context.PostForm("email")
+		user, _ := dao.Register(username)
+		fmt.Println(user)
+		if user.Username == username {
+			context.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  "用户名已存在",
+			})
+			return
+		}
+		user1 := &model.User{
+			Username: username,
+			Password: password,
+			Sex:      sex,
+			Email:    email,
+		}
+		err := dao.AddUser(user1)
+		if err != nil {
+			context.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  "添加用户err",
+			})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{
+			"code": 1,
+			"msg":  "注册成功",
+		})
 	}
 }
 
@@ -61,6 +91,7 @@ func Login() (handlerFunc gin.HandlerFunc) {
 	}
 }
 
+// 用户详情
 func UserDetail() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		u, _ := context.Get("user_claims")
@@ -84,6 +115,7 @@ func UserDetail() gin.HandlerFunc {
 	}
 }
 
+// 查询用户个人消息
 func UserInfo(context *gin.Context) {
 	username := context.Query("username")
 	if username == "" {
@@ -127,7 +159,7 @@ func UserInfo(context *gin.Context) {
 
 type UserInfoResult struct {
 	Username string `gorm:"comment:'用户名'" json:"username"`
-	Sex      int    `gorm:"comment:'性别'" json:"sex"`
+	Sex      string `gorm:"comment:'性别'" json:"sex"`
 	Email    string `gorm:"comment:'邮箱'" json:"email"`
 	IsFriend bool   `gorm:"comment:'是否是好友'" json:"IsFriend"` // true 是好友 false 不是
 }
